@@ -32,7 +32,7 @@ def register(request):
             form.save()
             return HttpResponseRedirect(reverse('authapp:login'))
     else:
-        form = UserRegisterForm
+        form = UserRegisterForm()
 
     context = {'form': form}
 
