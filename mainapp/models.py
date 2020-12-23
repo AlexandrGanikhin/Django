@@ -14,9 +14,6 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
     name = models.CharField(max_length=100)
     img = models.ImageField(upload_to='product_images', blank=True)
     description = models.TextField(blank=True)
@@ -24,6 +21,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     quantity = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return f'{self.name} {self.category.name}'
