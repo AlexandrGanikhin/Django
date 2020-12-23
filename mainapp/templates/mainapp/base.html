@@ -15,8 +15,6 @@
     <!-- Bootstrap core CSS -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="{% static 'css/index.css' %}" rel="stylesheet">
     {% block css %} {% endblock %}
 </head>
 
@@ -43,7 +41,7 @@
                             <a class="nav-link" href="{% url 'authapp:logout' %}">Выйти <i class="fas fa-sign-out-alt"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">{{ user.username }} <i class="fas fa-user-circle"></i></a>
+                            <a class="nav-link" href="{% url 'authapp:profile' %}">{{ user.first_name }} <i class="fas fa-user-circle"></i></a>
                         </li>
                     {% else %}
                         <li class="nav-item">
