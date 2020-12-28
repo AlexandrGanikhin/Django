@@ -31,9 +31,10 @@
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for user in users %}
+                    {% for user in object_list %}
                         <tr>
-                            <td><a href="{% url 'admin_staff:admin_users_update' user.id %}" style="color: dodgerblue">{{ user.username }}</a></td>
+                            <td><a href="{% url 'admin_staff:admin_users_update' user.id %}"
+                                   style="color: dodgerblue">{{ user.username }}</a></td>
                             <td>{{ user.first_name }}</td>
                             <td>{{ user.last_name }}</td>
                             <td>{{ user.email }}</td>
@@ -58,10 +59,41 @@
                 </table>
             </div>
         </div>
-            <a class="card-footer">
-                <a href="{% url 'admin_staff:admin_users_create' %}"
+        <a class="card-footer">
+            <a href="{% url 'admin_staff:admin_users_create' %}">
                 <button class="btn btn-success">Создать пользователя</button>
             </a>
-        </div>
+            {% if is_paginated %}
+                <ul class="pagination">
+                    <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %} ">
+                        <a class="page-link"
+                           href="
+                            {% if not page_obj.has_previous %}
+                             #
+                            {% else %}
+                            {% url 'admin_staff:admin_users' %}?page={{ page_obj.previous_page_number }}
+                            {% endif %}">
+                            Предыдущая
+                        </a>
+                    </li>
+                    {% for page in page_obj.paginator.page_range %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'admin_staff:admin_users' %}?page={{ page }}">{{ page }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    <li class="page-item {% if not page_obj.has_next %} disabled {% endif %} ">
+                        <a class="page-link"
+                           href="
+                            {% if not page_obj.has_next %}
+                            #
+                            {% else %}
+                            {% url 'admin_staff:admin_users' %}?page={{ page_obj.next_page_number }} {% endif %}">
+                            Следующая
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
     </div>
 {% endblock %}

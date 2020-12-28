@@ -27,7 +27,7 @@
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for product in products %}
+                    {% for product in object_list %}
                         <tr>
                             <td>
                                 <a href="{% url 'admin_staff:admin_products_update' product.id %}"
@@ -41,10 +41,41 @@
                 </table>
             </div>
         </div>
+        {% if is_paginated %}
+            <ul class="pagination">
+                <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %} ">
+                    <a class="page-link"
+                       href="
+                            {% if not page_obj.has_previous %}
+                            #
+                            {% else %}
+                            {% url 'admin_staff:admin_products' %}?page={{ page_obj.previous_page_number }}
+                            {% endif %}">
+                        Предыдущая
+                    </a>
+                </li>
+                {% for page in page_obj.paginator.page_range %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="{% url 'admin_staff:admin_products' %}?page={{ page }}">{{ page }}
+                        </a>
+                    </li>
+                {% endfor %}
+                <li class="page-item {% if not page_obj.has_next %} disabled {% endif %} ">
+                    <a class="page-link"
+                       href="
+                            {% if not page_obj.has_next %}
+                            #
+                            {% else %}
+                            {% url 'admin_staff:admin_products' %}?page={{ page_obj.next_page_number }} {% endif %}">
+                        Следующая
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
         <a class="card-footer">
             <a href="{% url 'admin_staff:admin_products_create' %}"
             <button class="btn btn-success">Создать продукт</button>
         </a>
-    </div>
     </div>
 {% endblock %}
