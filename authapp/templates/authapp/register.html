@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="col-lg-7">
-    {% if form.errors %}
+        {% if form.errors %}
             <div class="alert alert-warning alert-dismissible fade show"
                  role="alert" style="margin-top: 50px;">
                 {% if form.errors %}
@@ -68,6 +68,9 @@
             </div>
             <div class="card-footer text-center">
                 <div class="small"><a href="{% url 'authapp:login' %}">Уже есть аккаунт? Авторизоваться</a></div>
+            </div>
+            <div class="card-footer text-center">
+                <div class="small"><a href="{% url 'social:begin' 'vk-oauth2' %}?next=/">Войти через ВК</a></div>
             </div>
         </div>
     </div>
