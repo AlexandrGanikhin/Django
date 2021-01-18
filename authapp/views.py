@@ -1,9 +1,33 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse
 
 from authapp.forms import UserLoginForm, UserRegisterForm, UserProfileForm
-from basketapp.models import Basket
+from authapp.models import User
+
+
+def send_verify_email(user):
+    verify_link = reverse('auth:verify', args=[user.email, user.activation_key])
+
+    subject = f'Подтвердите создание учетной записи {user}'
+
+    message = f'Для подтверждения перейдите по ссылке {settings.DOMAIN}{verify_link}'
+
+    return send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+
+def verify(request, email, activation_key):
+    try:
+        user = User.objects.get(email=email)
+        if user.activation_key == activation_key and not user.is_activation_key_expires():
+            user.is_active = True
+            user.activation_key = True
+            user.save()
+            auth.login(request, user)
+        return render(request, 'authapp/verification.html')
+    except Exception:
+        return HttpResponseRedirect(reverse('main'))
 
 
 def login(request):
@@ -37,7 +61,7 @@ def profile(request):
 
     context = {
         'form': form,
-        'baskets': Basket.objects.filter(user=request.user),
+        #'baskets': Basket.objects.filter(user=request.user), #теперь в контекстном процессоре
     }
 
     return render(request, 'authapp/profile.html', context)
@@ -52,8 +76,12 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(data=request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Вы успешно зарегистрировались')
+            user = form.save()
+            if send_verify_email(user):
+                print('email successfully sent')
+            else:
+                print('error sending email')
+            messages.success(request, 'Вы успешно зарегистрировались, вам на почту отравлена ссылка для подтверждения регистрации.')
             return HttpResponseRedirect(reverse('authapp:login'))
     else:
         form = UserRegisterForm()
