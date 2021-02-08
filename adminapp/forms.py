@@ -2,7 +2,7 @@ from django import forms
 
 from authapp.forms import UserRegisterForm, UserProfileForm
 from authapp.models import User
-from mainapp.models import Product
+from mainapp.models import Product, ProductCategory
 
 
 class UserAdminRegisterForm(UserRegisterForm):
@@ -43,3 +43,18 @@ class UserAdminCreateProductForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control py-4'
         self.fields['img'].widget.attrs['class'] = 'custom-file-input'
+
+
+class UserAdminCreateCategoryForm(forms.ModelForm):
+    discount = forms.IntegerField(label='скидка', required=False, min_value=0, max_value=99, initial=0)
+
+    class Meta:
+        model = ProductCategory
+        exclude = ()
+
+    def __init__(self, *args, **kwargs):
+        super(UserAdminCreateCategoryForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['placeholder'] = 'Введите название категории'
+        self.fields['description'].widget.attrs['placeholder'] = 'Описание категории'
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control py-4'
