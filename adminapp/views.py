@@ -1,3 +1,5 @@
+from django.db import connection
+from django.db.models import F
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
@@ -8,7 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from authapp.models import User
 from mainapp.models import Product, ProductCategory
-from adminapp.forms import UserAdminRegisterForm, UserAdminProfileForm, UserAdminCreateProductForm
+from adminapp.forms import UserAdminRegisterForm, UserAdminProfileForm, UserAdminCreateProductForm, \
+    UserAdminCreateCategoryForm
 
 
 @user_passes_test(lambda user: user.is_superuser)
@@ -188,3 +191,49 @@ class ProductDeleteView(DeleteView):
 #     product = Product.objects.get(id=product_id)
 #     product.delete()
 #     return HttpResponseRedirect(reverse('admin_staff:admin_products'))
+
+class CategoryListView(ListView):
+    model = ProductCategory
+    template_name = 'adminapp/admin-category-read.html'
+    paginate_by = 2
+
+    @method_decorator(user_passes_test(lambda user: user.is_superuser))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CategoryListView, self).dispatch(request, *args, **kwargs)
+
+class CategoryUpdateView(UpdateView):
+    model = ProductCategory
+    template_name = 'adminapp/admin-category-update-delete.html'
+    success_url = reverse_lazy('admin_staff:admin_category')
+    form_class = UserAdminCreateCategoryForm
+
+    @method_decorator(user_passes_test(lambda user: user.is_superuser))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CategoryUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if 'discount' in form.cleaned_data:
+            discount = form.cleaned_data['discount']
+            if discount:
+                print()
+                self.object.product_set.update(price=F('price') * (1 - discount / 100))
+        return super().form_valid(form)
+
+class CategoryDeleteView(DeleteView):
+    model = ProductCategory
+    success_url = reverse_lazy('admin_staff:admin_category')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponseRedirect(self.get_success_url())
+
+class CategoryCreateView(CreateView):
+    model = ProductCategory
+    template_name = 'adminapp/admin-category-create.html'
+    success_url = reverse_lazy('admin_staff:admin_category')
+    form_class = UserAdminCreateCategoryForm
+
+    @method_decorator(user_passes_test(lambda user: user.is_superuser))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CategoryCreateView, self).dispatch(request, *args, **kwargs)
